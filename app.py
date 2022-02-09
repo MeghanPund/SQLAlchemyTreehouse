@@ -106,10 +106,10 @@ def app():
             session.commit()
             print('Book added!')
             time.sleep(1.5)
-            # add_book()
         elif choice == '2':
-            pass
-            # view_books()
+            for book in session.query(Book):
+                print(f'{book.id} | {book.title} | {book.author}')
+            input('\nPress enter to return to the main menu.')
         elif choice == '3':
             pass
             # search_books()
