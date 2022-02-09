@@ -47,7 +47,7 @@ def add_csv():
     with open('suggested_books.csv') as csvfile:
         data = csv.reader(csvfile)
         for row in data:
-            book_in_db = session.query(Book).filter(book.title==row[0]).one_or_none()
+            book_in_db = session.query(Book).filter(Book.title==row[0]).one_or_none()
             if book_in_db == None:
                 title = row[0]
                 author = row[1]
