@@ -3,6 +3,7 @@ from multiprocessing import AuthenticationError
 from models import (Base, session, Book, engine)
 import datetime
 import csv
+import time
 
 
 def menu():
@@ -32,16 +33,39 @@ def clean_date(date_str):
     months = ['January', 'February', 'March', 'April', 'May', 
     'June', 'July', 'August', 'September', 'October', 'November', 'December']
     split_date = date_str.split(' ')
-    month = int(months.index(split_date[0]) + 1)
-    day = int(split_date[1].strip(','))
-    year = int(split_date[2])
-
-    return datetime.date(year, month, day)
+    try:
+        month = int(months.index(split_date[0]) + 1)
+        day = int(split_date[1].strip(','))
+        year = int(split_date[2])
+        return_date = datetime.date(year, month, day)
+    except ValueError:
+        input('''
+        \n******* Date Error *******
+        \rThe date format is Month Day, Year.
+        \rEx: January 1, 2000
+        \rPress enter and try again. 
+        ***************''')
+        return
+    else:
+        return return_date
 
 
 def clean_price(price_str):
-    price_float = float(price_str)
-    return int(price_float * 100) # return price in cents bc floats are unpredictable
+    try:
+        price_float = float(price_str)
+    except ValueError:
+        input('''
+        \n******* Date Error *******
+        \rThe price should be a number without a currency symbol.
+        \rEx: 100.99
+        \rPress enter and try again. 
+        ***************''')
+        return
+    else:
+        return int(price_float * 100) # return price in cents bc floats are unpredictable
+
+
+
 
 def add_csv():
     with open('suggested_books.csv') as csvfile:
@@ -63,7 +87,25 @@ def app():
     while app_running:
         choice = menu()
         if choice == '1':
-            pass
+            title = input('Title: ')
+            author = input('Author: ')
+            date_error = True
+            while date_error:
+                date = input('Published Date (ex. February 9, 2022): ')
+                date = clean_date(date)
+                if type(date) == datetime.date:
+                    date_error = False
+            price_error = True
+            while price_error:
+                price = input('Price (Ex: 25.64): ')
+                price = clean_price(price)
+                if type(price) == int:
+                    price_error = False
+            new_book = Book(title=title, author=author, published_date=date, price=price)
+            session.add(new_book)
+            session.commit()
+            print('Book added!')
+            time.sleep(1.5)
             # add_book()
         elif choice == '2':
             pass
@@ -83,6 +125,7 @@ def app():
 if __name__ == '__main__':
     Base.metadata.create_all(engine) # initialize db
     add_csv()
+    app()
 
     for book in session.query(Book):
         print(book)
