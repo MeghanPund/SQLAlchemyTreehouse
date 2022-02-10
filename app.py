@@ -1,3 +1,4 @@
+from hashlib import new
 from models import (Base, session, Book, engine)
 import datetime
 import csv
@@ -195,8 +196,15 @@ def app():
                 print('Book deleted!')
                 time.sleep(1.5)
         elif choice == '4':
-            pass
-            # book_analysis()
+            oldest_book = session.query(Book).order_by(Book.published_date).first()
+            newest_book = session.query(Book).order_by(Book.published_date.desc()).first()
+            total_books = session.query(Book).count()
+            python_books = session.query(Book).filter(Book.title.like("%Python%")).count()
+            print(f'''\n***** BOOK ANALYSIS *****
+            \rOldest Book: {oldest_book}
+            \rNewest Book: {newest_book}
+            \rTotal Books: {total_books}
+            \rBooks with 'Python' in title: {python_books}''')
         else:
             print("Goodbye!")
             app_running = False
@@ -207,5 +215,5 @@ if __name__ == '__main__':
     add_csv()
     app()
 
-    for book in session.query(Book):
-        print(book)
+    # for book in session.query(Book):
+    #     print(book)
